@@ -12,14 +12,7 @@ require(ggplot2)
 # Move up one directory
 wd <- getwd()
 
-DATA_HOME <- paste(getwd(),
-                   "data/midas.af",
-                   sep = "/")
-# Reset working directory
-setwd(wd)
-getwd()
-
-getwd()
+# Part I: Load data----
 setwd("data")
 dList <- dir()
 dList
@@ -55,6 +48,9 @@ dt3[, 5:16] <- lapply(dt3[, 5:16],
                       })
 dt3
 
+# Reset working directory
+setwd(wd)
+
 # Rename all samples using treatment names
 sName <- c("Control_1",
            "Control_2",
@@ -81,24 +77,27 @@ t3 <- data.table(dt3[, 1:4],
 names(t3)[5:10] <- sName
 t3
 
+rm(dt1, dt2, dt3, dList, sName)
+gc()
+
+# Part II: Compare Treatments mand Batches----
 # Combine first and third batches
 dtc <- merge(t1, t3, by = names(t1)[1:4])
 
-# How different are the treatments?
 # Group averages: Batch 1----
 dtc$ctrl_x <- (dtc$Control_1.x + dtc$Control_2.x)/2
 dtc$aomdss_x <- (dtc$AOM_DSS_1.x + dtc$AOM_DSS_2.x)/2
 dtc$cur_x <- (dtc$Cur_1.x + dtc$Cur_2.x)/2
 
-# Fold-changes
+# Fold-changes----
 dtc$log2.aomdss.ctrl.x <- log2(dtc$aomdss_x/dtc$ctrl_x)
 dtc$log2.aomdss.cur.x <- log2(dtc$aomdss_x/dtc$cur_x)
 
-# Absolute differences
+# Absolute differences----
 dtc$diff.aomdss.ctrl.x <- dtc$aomdss_x - dtc$ctrl_x
 dtc$diff.aomdss.cur.x <- dtc$aomdss_x - dtc$cur_x
 
-# Plot proportions methylated
+# Plot proportions methylated----
 hist(dtc$ctrl_x, 
      100, 
      xlab = "Proportion Methylated CpG",
@@ -112,7 +111,28 @@ hist(dtc$cur_x,
      xlab = "Proportion Methylated CpG",
      main = "Batch 1 Curcumin")
 
-# Differences in treatments within Batch 1
+# Differences in treatments within Batch 1-----
+x <- dtc$ctrl_x
+y <- dtc$aomdss_x
+z <- dtc$cur_x
+
+plot(y ~ x,
+     xlab = "Control",
+     ylab = "AOM-DSS",
+     main = "Batch 1. RED:Diff <= -10% or >= 10%")
+points(y[abs(dtc$diff.aomdss.ctrl.x) >= 0.1] ~ 
+         x[abs(dtc$diff.aomdss.ctrl.x) >= 0.1],
+       col = "red")
+
+plot(z ~ y,
+     xlab = "AOM-DSS",
+     ylab = "Curcumin",
+     main = "Batch 1. RED:Diff <= -10% or >= 10%")
+points(z[abs(dtc$diff.aomdss.cur.x) >= 0.1] ~ 
+         y[abs(dtc$diff.aomdss.cur.x) >= 0.1],
+       col = "red")
+
+# Fold-changes in treatments within Batch 1-----
 x <- -log2(dtc$ctrl_x)
 y <- -log2(dtc$aomdss_x)
 z <- -log2(dtc$cur_x)
@@ -138,35 +158,14 @@ dtc$ctrl_y <- (dtc$Control_1.y + dtc$Control_2.y)/2
 dtc$aomdss_y <- (dtc$AOM_DSS_1.y + dtc$AOM_DSS_2.y)/2
 dtc$cur_y <- (dtc$Cur_1.y + dtc$Cur_2.y)/2
 
-# Differences in treatments within Batch 2 Rerun
-x <- -log2(dtc$ctrl_y)
-y <- -log2(dtc$aomdss_y)
-z <- -log2(dtc$cur_y)
-
-# Fold-cahnges
+# Differences in treatments within Batch 2 Rerun-----
+# Fold-cahnges----
 dtc$log2.aomdss.ctrl.y <- log2(dtc$aomdss_y/dtc$ctrl_y)
 dtc$log2.aomdss.cur.y <- log2(dtc$aomdss_y/dtc$cur_y)
 
-# Absolute differences
+# Absolute differences----
 dtc$diff.aomdss.ctrl.y <- dtc$aomdss_y - dtc$ctrl_y
 dtc$diff.aomdss.cur.y <- dtc$aomdss_y - dtc$cur_y
-
-
-plot(y ~ x,
-     xlab = "-log2(Control)",
-     ylab = "-log2(AOM-DSS)",
-     main = "Batch 2 Rerun. RED:log2 <= -1 or >= 1")
-points(y[abs(dtc$log2.aomdss.ctrl.y) >= 1] ~ 
-         x[abs(dtc$log2.aomdss.ctrl.y) >= 1],
-       col = "red")
-
-plot(z ~ y,
-     xlab = "-log2(AOM-DSS)",
-     ylab = "-log2(Curcumin)",
-     main = "Batch 2 Rerun. RED:log2 <= -1 or >= 1")
-points(z[abs(dtc$log2.aomdss.cur.y) >= 1] ~ 
-         y[abs(dtc$log2.aomdss.cur.y) >= 1],
-       col = "red")
 
 # Plot proportions methylated
 hist(dtc$ctrl_y, 
@@ -182,7 +181,49 @@ hist(dtc$cur_y,
      xlab = "Proportion Methylated CpG",
      main = "Batch 2 Rerun Curcumin")
 
-# log2 changes----
+# Differences in treatments within Batch 2 Rerun-----
+x <- dtc$ctrl_y
+y <- dtc$aomdss_y
+z <- dtc$cur_y
+
+plot(y ~ x,
+     xlab = "Control",
+     ylab = "AOM-DSS",
+     main = "Batch 2 Rerun. RED:Diff <= -10% or >= 10%")
+points(y[abs(dtc$diff.aomdss.ctrl.y) >= 0.1] ~ 
+         x[abs(dtc$diff.aomdss.ctrl.y) >= 0.1],
+       col = "red")
+
+plot(z ~ y,
+     xlab = "AOM-DSS",
+     ylab = "Curcumin",
+     main = "Batch 2 Rerun. RED:Diff <= -10% or >= 10%")
+points(z[abs(dtc$diff.aomdss.cur.y) >= 0.1] ~ 
+         y[abs(dtc$diff.aomdss.cur.y) >= 0.1],
+       col = "red")
+
+# Fold-cahnges in treatments within Batch 2-----
+x <- -log2(dtc$ctrl_y)
+y <- -log2(dtc$aomdss_y)
+z <- -log2(dtc$cur_y)
+
+plot(y ~ x,
+     xlab = "-log2(Control)",
+     ylab = "-log2(AOM-DSS)",
+     main = "Batch 1. RED:log2 <= -1 or >= 1")
+points(y[abs(dtc$log2.aomdss.ctrl.y) >= 1] ~ 
+         x[abs(dtc$log2.aomdss.ctrl.y) >= 1],
+       col = "red")
+
+plot(z ~ y,
+     xlab = "-log2(AOM-DSS)",
+     ylab = "-log2(Curcumin)",
+     main = "Batch 1. RED:log2 <= -1 or >= 1")
+points(z[abs(dtc$log2.aomdss.cur.y) >= 1] ~ 
+         y[abs(dtc$log2.aomdss.cur.y) >= 1],
+       col = "red")
+
+# Fold-changes between batches----
 plot(dtc$log2.aomdss.ctrl.x  ~ 
        dtc$log2.aomdss.ctrl.y,
      xlim = c(-6, 6),
@@ -201,7 +242,7 @@ plot(dtc$log2.aomdss.cur.x ~
      main = "Log2 Differences in Curcumin vs. AOM-DSS")
 abline(0, 1, col = "red")
 
-# Absolute differences----
+# Absolute differences between batches----
 plot(dtc$diff.aomdss.ctrl.x  ~ 
        dtc$diff.aomdss.ctrl.y,
      xlab = "Batch 2 Repeat",
@@ -215,6 +256,13 @@ plot(dtc$diff.aomdss.cur.x ~
      ylab = "Batch 1",
      main = "Absolute Differences in Curcumin vs. AOM-DSS")
 abline(0, 1, col = "red")
+
+CONTINUE HERE, DS 11/07/2017!
+
+# Plot averages of same treatment in different batches----
+plot(dtc$ctrl_x ~ dtc$ctrl_y)
+plot(dtc$aomdss_x ~ dtc$aomdss_y)
+plot(dtc$cur_x ~ dtc$cur_y)
 
 # Plot Sample 1 vs. Sample 2 from Batch 1
 x <- -log(dtc$Control_1.x)
