@@ -1,5 +1,23 @@
+# |----------------------------------------------|
+# | Project: Curcumin Treatment of AOM-DSS Model |
+# | Study ID:                                    |
+# | Scientist: Yue, Renyi Wu                     |
+# | Data Analysis: Renyi Wu, Davit Sargsyan      |
+# | Created: 11/06/2017                          |
+# |----------------------------------------------|
+# Header----
 require(data.table)
 require(ggplot2)
+
+# Move up one directory
+wd <- getwd()
+
+DATA_HOME <- paste(getwd(),
+                   "data/midas.af",
+                   sep = "/")
+# Reset working directory
+setwd(wd)
+getwd()
 
 getwd()
 setwd("data")
