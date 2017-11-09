@@ -21,31 +21,31 @@ dList
 dt1 <- fread(dList[1])
 dt1 <- dt1[, c(1:4,
                25:36)]
-dt1[, 5:16] <- lapply(dt1[, 5:16],
-                     function(a) {
-                       a[is.na(a)] <- 0
-                       a <- a + 1
-                     })
+# dt1[, 5:16] <- lapply(dt1[, 5:16],
+#                      function(a) {
+#                        a[is.na(a)] <- 0
+#                        a <- a + 1
+#                      })
 dt1
 
 # "Bad" batch (Batch 2)
 dt2 <- fread(dList[2])
-dt2[, 5:16] <- lapply(dt2[, 5:16],
-                      function(a) {
-                        a[is.na(a)] <- 0
-                        a <- a + 1
-                      })
+# dt2[, 5:16] <- lapply(dt2[, 5:16],
+#                       function(a) {
+#                         a[is.na(a)] <- 0
+#                         a <- a + 1
+#                       })
 dt2
 
 # Rerun of the samples from Batch 2
 dt3 <- fread(dList[3])
 # Keep Cur samples only
 dt3 <- dt3[, 1:16]
-dt3[, 5:16] <- lapply(dt3[, 5:16],
-                      function(a) {
-                        a[is.na(a)] <- 0
-                        a <- a + 1
-                      })
+# dt3[, 5:16] <- lapply(dt3[, 5:16],
+#                       function(a) {
+#                         a[is.na(a)] <- 0
+#                         a <- a + 1
+#                       })
 dt3
 
 # Reset working directory
@@ -80,7 +80,7 @@ t3
 rm(dt1, dt2, dt3, dList, sName)
 gc()
 
-# Part II: Compare Treatments mand Batches----
+# Part II: Compare Treatments and Batches----
 # Combine first and third batches
 dtc <- merge(t1, t3, by = names(t1)[1:4])
 
@@ -202,7 +202,7 @@ points(z[abs(dtc$diff.aomdss.cur.y) >= 0.1] ~
          y[abs(dtc$diff.aomdss.cur.y) >= 0.1],
        col = "red")
 
-# Fold-changes in treatments within Batch 2-----
+# Fold-cahnges in treatments within Batch 2-----
 x <- -log2(dtc$ctrl_y)
 y <- -log2(dtc$aomdss_y)
 z <- -log2(dtc$cur_y)
@@ -334,10 +334,10 @@ plot(dtc$diff.aomdss.ctrl.y  ~
      main = "Batch 2 Rerun")
 
 
-CONTINUE HERE, DS 11/07/2017!
-  DO PCA!  
-
-# Plot averages of same treatment in different batches----
-plot(dtc$ctrl_x ~ dtc$ctrl_y)
-plot(dtc$aomdss_x ~ dtc$aomdss_y)
-plot(dtc$cur_x ~ dtc$cur_y)
+# CONTINUE HERE, DS 11/07/2017!
+# DO PCA!
+#   
+# # Plot averages of same treatment in different batches----
+# plot(dtc$ctrl_x ~ dtc$ctrl_y)
+# plot(dtc$aomdss_x ~ dtc$aomdss_y)
+# plot(dtc$cur_x ~ dtc$cur_y)

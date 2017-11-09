@@ -5,6 +5,11 @@
 ### Created: 11/06/2017 
 
 ---
+
+## Daily Logs
+### 11/09/2017
+* Added annotation and plotted TNFa methylation by DMR in the 2 batches    
+
 ## Samples Legend
 ### Batch 1 8-week
 ID	Sample name
