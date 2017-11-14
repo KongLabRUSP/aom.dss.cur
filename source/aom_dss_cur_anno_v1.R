@@ -175,15 +175,16 @@ p1 <- ggplot(dtPlot,
                  fill = Batch,
                  group = Batch)) +
   facet_wrap(~ Location,
-             nrow = 3,
+             nrow = 2,
              scales = "free") +
   geom_bar(position = position_dodge(),
-           stat="identity")
+           stat="identity") +
+  ggtitle("TNFa Methylation Level by DMR")
 p1
 
 tiff(filename = "tmp/tfn_methyl_barplot.tiff",
-     height = 8,
-     width = 8,
+     height = 5,
+     width = 12,
      units = 'in',
      res = 300,
      compression = "lzw+p")
