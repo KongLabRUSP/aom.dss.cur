@@ -18,19 +18,23 @@
 require(data.table)
 require(ggplot2)
 require(ChIPseeker)
-require(TxDb.Mmusculus.UCSC.mm9.knownGene)
+# require(TxDb.Mmusculus.UCSC.mm10.knownGene)
+require(TxDb.Mmusculus.UCSC.mm10.knownGene)
 
 # Part I: Data----
 # Move up one directory
 wd <- getwd()
 
-# Part I: Load data----
-setwd("data")
+setwd("data/yue")
 dList <- dir()
 dList
 
 # First batch
+dList[1]
+# "comb2.csv": 201,941 rows, 36 columns, methylation counts
 dt1 <- fread(dList[1])
+
+# Separate Negative Control, AOM+DSS and AOM+DSS+Cur at 18 weeks----
 dt1 <- dt1[, c(1:4,
                25:36)]
 # dt1[, 5:16] <- lapply(dt1[, 5:16],
@@ -40,18 +44,13 @@ dt1 <- dt1[, c(1:4,
 #                      })
 dt1
 
-# # "Bad" batch (Batch 2)
-# dt2 <- fread(dList[2])
-# # dt2[, 5:16] <- lapply(dt2[, 5:16],
-# #                       function(a) {
-# #                         a[is.na(a)] <- 0
-# #                         a <- a + 1
-# #                       })
-# dt2
-
 # Rerun of the samples from Batch 2
+dList[3]
+# "Methyl_rep_2017.samdup.csv": 234,490 rows, 36 columns, methylation counts
 dt3 <- fread(dList[3])
 # Keep Cur samples only
+
+# Separate Negative Control, AOM+DSS and AOM+DSS+Cur at 18 weeks----
 dt3 <- dt3[, 1:16]
 # dt3[, 5:16] <- lapply(dt3[, 5:16],
 #                       function(a) {
@@ -102,13 +101,13 @@ gc()
 
 # Part II: Annotate----
 write.table(dt13, 
-          file = "tmp/dt13.csv",
-          row.names = FALSE,
-          sep = "\t")
+            file = "tmp/dt13.csv",
+            row.names = FALSE,
+            sep = "\t")
 
 peakAnno1 <- annotatePeak(peak = "tmp/dt13.csv", 
                           tssRegion = c(-3000, 3000), 
-                          TxDb = TxDb.Mmusculus.UCSC.mm9.knownGene,
+                          TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene,
                           annoDb = "org.Mm.eg.db")
 
 # # CHECK: did I miss any region? All 7 region I found for TNF are in Promoter.

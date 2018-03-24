@@ -9,16 +9,20 @@
 require(data.table)
 require(ggplot2)
 
+# Part I: Load data----
 # Move up one directory
 wd <- getwd()
 
-# Part I: Load data----
-setwd("data")
+setwd("data/yue")
 dList <- dir()
 dList
 
 # First batch
+dList[1]
+# "comb2.csv": 201,941 rows, 36 columns, methylation counts
 dt1 <- fread(dList[1])
+
+# Separate Negative Control, AOM+DSS and AOM+DSS+Cur at 18 weeks----
 dt1 <- dt1[, c(1:4,
                25:36)]
 # dt1[, 5:16] <- lapply(dt1[, 5:16],
@@ -28,7 +32,9 @@ dt1 <- dt1[, c(1:4,
 #                      })
 dt1
 
-# "Bad" batch (Batch 2)
+# "Bad" batch (Batch 2)----
+dList[2]
+# "combined_yue_2nd_dedup.csv": 8,308 rows, 16 columns, methylation counts
 dt2 <- fread(dList[2])
 # dt2[, 5:16] <- lapply(dt2[, 5:16],
 #                       function(a) {
@@ -38,8 +44,12 @@ dt2 <- fread(dList[2])
 dt2
 
 # Rerun of the samples from Batch 2
+dList[3]
+# "Methyl_rep_2017.samdup.csv": 234,490 rows, 36 columns, methylation counts
 dt3 <- fread(dList[3])
 # Keep Cur samples only
+
+# Separate Negative Control, AOM+DSS and AOM+DSS+Cur at 18 weeks----
 dt3 <- dt3[, 1:16]
 # dt3[, 5:16] <- lapply(dt3[, 5:16],
 #                       function(a) {

@@ -1,0 +1,151 @@
+#workflow for Methyl-seq, shan. use (fixed by John) bismark v 0.16.1-dev
+
+# align with bismark
+cd /dir/to/fastq/files/
+perl ../bis-jphn/bismark --multicore 1 ~/Documents/mm9.2_for_bismark/ S*.fastq.gz >log.txt
+
+##
+// consider deduplication with my findDups5.py -- can be done on the fly
+$ samtools view -h C14_S3_R1_001_bismark_bt2.bam | python ~/rutgers/findDups5.py - - | python ~/DMRfinder/extract_CpG_data.py -i - -o C14dup.cov -v
+
+####
+administrator@SOP-1482:~/Documents/Renyi/yue_cur_methyl_2nd$ samtools view -h C15_S1_R1_001_bismark_bt2.bam | python ../bis-jphn/findDups9.py - C15_dedup_w9.bam
+Total alignments:       27230090
+  Unmapped:                    0
+PE-aligned fragments:          0
+  duplicates:                  0
+SE-aligned fragments:   27230090
+  duplicates:           25840193
+###
+administrator@SOP-1482:~/Documents/Renyi/yue_cur_methyl_2nd$ samtools view -h C15_S1_R1_001_bismark_bt2.bam | python ../bis-jphn/findDups5.py - - | python ../../DMRfinder/extract_CpG_data.py -i - -o C14dedup_w5.cov -v
+Processing the SAM file
+Reads processed so far: 1000000
+Reads:     27230090
+  Dup seq: 20725159
+  Dup pos:  5115034
+  Unique:   1389897
+Reads analyzed: 1389897
+  Mapped: 1389897
+  Total CpG methylation values in the reads: 1232679
+    Methylated: 667958
+    Unmethylated: 564721
+    Percent methylated: 54.2%
+Printing the output file
+Genomic CpG sites printed: 925071
+
+##
+administrator@SOP-1482:~/Documents/Renyi/yue_cur_methyl_1st$ samtools view -h C14.bam | python ../bis-jphn/findDups5.py -  C14.dedup.bam
+
+####extract CpG sites without deduplication:
+for i in *.bam
+do
+ib=`basename $i _R1_001_bismark_bt2.bam`
+samtools view -h $i | python ../../DMRfinder/extract_CpG_data.py -i -  -o $ib.cov
+done
+
+####extract CpG sites with deduplication (findDup5.py):
+for i in *.bam
+do
+ib=`basename $i _R1_001_bismark_bt2.bam`
+samtools view -h $i | python ../bis-jphn/findDups5.py - - | python ../../DMRfinder/extract_CpG_data.py -i -  -o "$ib"_dedup5.cov
+done
+#output
+Reads:     27230090
+  Dup seq: 20725159
+  Dup pos:  5115034
+  Unique:   1389897
+Reads:     28617991
+  Dup seq: 21881624
+  Dup pos:  5297905
+  Unique:   1438462
+Reads:     26986329
+  Dup seq: 20707803
+  Dup pos:  5007800
+  Unique:   1270726
+Reads:     27213291
+  Dup seq: 20642068
+  Dup pos:  5116408
+  Unique:   1454815
+Reads:     29625299
+  Dup seq: 22936602
+  Dup pos:  5367406
+  Unique:   1321291
+Reads:     28097718
+  Dup seq: 21811266
+  Dup pos:  5072900
+  Unique:   1213552
+#output end...
+
+
+#2 extract 
+$ samtools view -h S1_bismark_bt2.bam | python ../../DMRfinder/extract_CpG_data.py -i -  -o S1.cov
+
+###try this loop. worked.
+for i in 2 3 4 5 6
+do
+samtools view -h S"$i"_bismark_bt2.bam | python ../../DMRfinder/extract_CpG_data.py -i -  -o S"$i".cov
+done
+e f
+##3, combine reads into regions. THis step finishes in seconds.
+$ python ../../DMRfinder/combine_CpG_sites.py -o combined.csv S1.cov S2.cov S3.cov S4.cov S5.cov S6.cov
+
+#4, run DMRfinder.r 
+administrator@SOP-1482:~/Documents/Renyi/Shan_methyl_2017$ Rscript ../../DMRfinder/findDMRs.r -i combined.csv -o results.csv -n Control,TPA,Treatment S1,S2,S3 S4,S5,S6
+
+Rscript ../../DMRfinder/findDMRs.r -i combined.csv -o results_all.csv -n Control,TPA,TPA+CA,TPA+FX,TPA+CDDO,TPA+mITC S1 S2 S3 S4 S5 S6
+
+###Yue's samples
+# model="AOM+DSS"; curcumin="AOM+DSS+Curcumin"
+C1,C2	control_8
+C26,C29	model_8
+C42,C47	curcumin_8
+C65,C70	dss_8
+C75,C79	dss+curcumin_8
+C14,C20	control_18
+C34,C40	model_18
+C54,C60	curcumin_18
+
+###
+# labels to use:
+Control (8wks)
+AOM+DSS (8wks)
+AOM+DSS+Curcumin (8wks)
+DSS (8wks)
+DSS+Curcumin (8wks)
+Control (18wks)
+AOM+DSS (18wks)
+AOM+DSS+Curcumin (18wks)
+###
+
+administrator@SOP-1482:~/Documents/Renyi/yue_cur_methyl_2nd$ Rscript ../../DMRfinder/findDMRs.r -i combined_yue_2nd_dedup.csv -o dmr_yue_2nd_dedup.csv -n Control,AOM_DSS,AOM_DSS_Cur C15_S1_dedup5,C19_S2_dedup5 C33_S3_dedup5,C36_S4_dedup5 C55_S5_dedup5,C59_S6_dedup5
+
+administrator@SOP-1482:~/Documents/Renyi/yue_cur_methyl_2nd$ Rscript ../../DMRfinder/findDMRs.r -i combined_yue_2nd_ori.csv -o dmr_yue_2nd_ori.csv -n Control,AOM_DSS,AOM_DSS_Cur C15_S1,C19_S2 C33_S3,C36_S4 C55_S5,C59_S6
+
+
+
+#fixed installation
+
+#optional, install DSS (only for the first time) Use this link instructions to fix some problems.
+# https://askubuntu.com/questions/359267/cannot-find-curl-config-in-ubuntu-13-04
+sudo R
+## try http:// if https:// URLs are not supported
+source("https://bioconductor.org/biocLite.R")
+biocLite("DSS")
+
+R
+source("https://bioconductor.org/biocLite.R")
+biocLite("GenomicFeatures")
+library(GenomicFeatures)
+txdb <- makeTxDbFromGFF('/home/administrator/Documents/mm9.2_for_bismark/Mus_musculus_UCSC_mm9.2/Mus_musculus/UCSC/mm9/Annotation/Genes/genes.gtf', format='gtf', organism='Mus musculus')
+library(ChIPseeker)
+peak <- readPeakFile('results.csv')
+peakAnno <- annotatePeak(peak, TxDb=txdb)
+
+# add annotations to comb_def.csv
+peak2 <- read.table('results.csv', header=T)
+peak2$feature <- peakAnno@anno$annotation
+peak2$distance <- peakAnno@anno$distanceToTSS
+peak2$gene <- peakAnno@anno$geneId
+write.table(peak2, 'results_anno.csv', sep='\t', quote=F, row.names=F)
+#or 
+write.table(peak2, 'results_anno_T.csv', sep='\t', quote=T, row.names=F)

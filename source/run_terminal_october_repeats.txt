@@ -1,0 +1,7 @@
+1. Files were downloaded from the server
+Renyi:
+2. QC using FastQC
+3. Alignment against MM10
+4. Sort and deduplication: samtools, picard and findDups5.py. Similar results. 
+5. extract_CpG_data.py
+6. combine_CpG_sites.py

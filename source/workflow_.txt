@@ -1,0 +1,17 @@
+#Run on sop-1482
+#use finddup5 on bam file by bismark v0.18
+samtools view -h C1.bam | python ../../DMRfinder/findDups5.py - - | python ../../DMRfinder/extract_CpG_data.py -i - -o C1.dedup.cov
+#Reads:     32632469
+ # Dup seq:  4734457
+ # Dup pos:  4427555
+ # Unique:  23470457
+# 35 GB RAM comsuption.
+
+#use finddup5 on bam file by bismark v0.16(patched)
+administrator@SOP-1482:~/Documents/Renyi/yue_cur_methyl_1st/C1.v16.bam$ samtools view -h C1.gz_bismark_bt2.bam | python ../../findDups5.py - - | python ../../../DMRfinder/extract_CpG_data.py -i - -o C1.V16.f5.cov
+#Reads:     32632469
+ # Dup seq:  4734457
+  #Dup pos:  4427555
+ # Unique:  23470457
+
+
